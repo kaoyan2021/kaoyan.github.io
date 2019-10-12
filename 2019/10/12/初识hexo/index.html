@@ -7,14 +7,19 @@
   
   <title>初识hexo | 占志鹏</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="article">
+  <meta name="description" content="storm的并行度，其实就是让storm中的组件使用多线程来运行，正常情况下，每一个组件都是一个线程来运行的。storm中的组件在运行的时候都会生成一些task(实例，还可以理解为new Spout或者new Bolt)。这个task先要运行的话，需要在线程(executor)中运行，线程需要存在于进程(worker)内部。 storm并行简介关系简介 Worker进程存在于每个工作节点Super">
+<meta property="og:type" content="article">
 <meta property="og:title" content="初识hexo">
 <meta property="og:url" content="http://chris8860.gitee.io/myblog/2019/10/12/初识hexo/index.html">
 <meta property="og:site_name" content="占志鹏">
+<meta property="og:description" content="storm的并行度，其实就是让storm中的组件使用多线程来运行，正常情况下，每一个组件都是一个线程来运行的。storm中的组件在运行的时候都会生成一些task(实例，还可以理解为new Spout或者new Bolt)。这个task先要运行的话，需要在线程(executor)中运行，线程需要存在于进程(worker)内部。 storm并行简介关系简介 Worker进程存在于每个工作节点Super">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-10-12T08:14:49.461Z">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwyad06k0zj309z092gly.jpg">
+<meta property="og:updated_time" content="2019-10-12T08:21:10.555Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初识hexo">
+<meta name="twitter:description" content="storm的并行度，其实就是让storm中的组件使用多线程来运行，正常情况下，每一个组件都是一个线程来运行的。storm中的组件在运行的时候都会生成一些task(实例，还可以理解为new Spout或者new Bolt)。这个task先要运行的话，需要在线程(executor)中运行，线程需要存在于进程(worker)内部。 storm并行简介关系简介 Worker进程存在于每个工作节点Super">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fwyad06k0zj309z092gly.jpg">
   
     <link rel="alternate" href="/myBlog/atom.xml" title="占志鹏" type="application/atom+xml">
   
@@ -87,7 +92,178 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p><strong>storm的并行度</strong>，其实就是让storm中的组件使用多线程来运行，正常情况下，每一个组件都是一个线程来运行的。storm中的组件在运行的时候都会生成一些task(实例，还可以理解为new Spout或者new Bolt)。这个task先要运行的话，需要在线程(executor)中运行，线程需要存在于进程(worker)内部。</p>
+<h2 id="storm并行简介"><a href="#storm并行简介" class="headerlink" title="storm并行简介"></a>storm并行简介</h2><h3 id="关系简介"><a href="#关系简介" class="headerlink" title="关系简介"></a>关系简介</h3><ol>
+<li><strong>Worker进程</strong>存在于每个<strong>工作节点Supervisor</strong>中，一个Worker进程中可以含有一个或者多个Executor线程，每个Executor线程都会启动一个消息循环线程，用于接收、处理和发送消息，当Executor收到其下某一task的消息后，就会调用该Task对应的处理逻辑对消息进行处理；</li>
+<li>1个topology可以有多个worker进程，1个worker进程只为1个topology服务。即<strong>1个worker进程执行的是1个topology的子集</strong>；</li>
+<li><strong>一个线程Executor，运行时只会运行一个task</strong>，如果有多个，循环执行，即其他的task出去等待状态；</li>
+<li>task，最终运行spout或bolt中代码的执行单元，即<strong>task可能是spout组件也有可能是bolt组件</strong>；</li>
+<li><strong>默认情况下</strong>: <code>1个supervisor</code>节点最多可以启动<code>4个worker进程</code>，每<code>1个topology</code>默认占用<code>1个worker进程</code>，<code>每个spout或者bolt</code>会占用<code>1个executor</code>，<code>每个executor</code>启动<code>1个task</code>。</li>
+</ol>
+<p><a href="https://ws2.sinaimg.cn/large/006tNbRwly1fwyez8ot3jj314e0k0tup.jpg" target="_blank" rel="noopener">官网Storm结构图</a> </p>
+<ul>
+<li><strong>注意</strong> ： 在同一个线程中，如果有多个task，这些task一定是相同组件实例，毕竟每个executor只能对应一个组件。</li>
+</ul>
+<p>　　</p>
+<h3 id="官网实例"><a href="#官网实例" class="headerlink" title="官网实例"></a>官网实例</h3><p><a href="https://ws2.sinaimg.cn/large/006tNbRwly1fwyaczy905j30g80ea0tk.jpg" target="_blank" rel="noopener">Storm官网并行度例子</a></p>
+<p>上图拓扑中有2个 worker 进程。</p>
+<ol>
+<li>蓝色的 BlueSpout 有2个 executor线程，每个 executor 有1个 task，并行度为 2；</li>
+<li>绿色的 GreenBolt 有2个 executor线程，每个 executor 有2个 task，并行度为 2；</li>
+<li>黄色的 YellowBolt 有6个 executor线程，每个 executor 有1个 task，并行度为 6；</li>
+<li>拓扑的总并行度就是 2 + 2 + 6 = 10。具体分配到每个 worker 就有 10 / 2 = 5 个 executor。</li>
+</ol>
+<h2 id="提高并行度"><a href="#提高并行度" class="headerlink" title="提高并行度"></a>提高并行度</h2><ul>
+<li>并行度是基于线程数量来确定的，线程数被平均分配到Worker进程中。</li>
+<li><strong>提高storm并行度的方法</strong>：</li>
+</ul>
+<ol>
+<li>最直接的就是提高某一个组件的<code>executor</code>线程数；</li>
+<li>从worker层面和task层面：<br>2.1. <code>worker</code>：可以把很多线程分配到多个worker进程中；<br>2.2. <code>task</code>：提高task任务数量（<em>并不能提高并行度</em>），可以为后期进行<strong>弹性计算（rebalance）</strong>即后期<strong>动态调整某一组件的并行度</strong>。<strong>因为当topology提交到集群之后，task任务数目就不能改变了。</strong></li>
+</ol>
+<h3 id="并行度设置"><a href="#并行度设置" class="headerlink" title="并行度设置"></a>并行度设置</h3><ul>
+<li><strong>配置worker进程数量</strong></li>
+</ul>
+<ol>
+<li>默认一个从节点上可以启动 4 个worker进程(<em>defaults.yaml</em>)。自己可以在storm配置文件中配置，参数supervisor.slots.ports;</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">supervisor.slots.ports:</span> <span class="comment">##指定storm通讯端口，注意超线程</span></span><br><span class="line"><span class="bullet">      -</span> <span class="number">6701</span></span><br><span class="line"><span class="bullet">      -</span> <span class="number">6702</span></span><br><span class="line"><span class="bullet">      -</span> <span class="number">6703</span></span><br><span class="line"><span class="bullet">      -</span> <span class="number">6704</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p>默认一个topology只使用一个worker进程，可以通过代码<code>config.setNumWorkers(workers)</code>来设置使用多个worker进程;<br>2.1. 最好一台机器上的一个topology只使用一个worker,主要原因是减少了worker进程之间的数据传输（Netty）；<br>2.2. 如果worker使用完的话再提交topology就不会执行，会处于等待状态；</p>
+</li>
+<li><p>增加worker 是增加topology 计算能力的简单方法，spout 和bolt 组件都不需要做变更。</p>
+</li>
+</ol>
+<ul>
+<li><strong>配置executor线程数量</strong><br>默认情况下一个executor运行一个task，可以通过在代码中设置每个组件需要的执行线程数</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">builder.setSpout(id, spout, parallelism_hint); ##parallelism_hint设置spout的线程数量</span><br><span class="line">builder.setBolt(id, bolt, parallelism_hint);   ##parallelism_hint设置bolt的线程数量</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>配置task数量</strong></li>
+</ul>
+<ol>
+<li>task是通过 spout/bolt的声明中setNumTasks(num)设置对应spout/bolt的task个数，默认每个 executor 的 task 数为 1；</li>
+<li>executor的数量会小于等于task的数量(为了rebalance)。</li>
+</ol>
+<h3 id="Executor-num计算"><a href="#Executor-num计算" class="headerlink" title="Executor num计算"></a>Executor num计算</h3><p><strong><em>记住一句话：每一个组件都有一个隐形的Acker进程，那么在计算的时候是需要加上的。</em></strong></p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><ul>
+<li><p>下面就一上图【Storm 官网蓝绿黄例子】做一个并行度设置，如下图所示：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fwyad06k0zj309z092gly.jpg" alt="Storm 官网蓝绿黄并行度设置"></p>
+</li>
+</ul>
+<h2 id="弹性计算"><a href="#弹性计算" class="headerlink" title="弹性计算"></a>弹性计算</h2><ul>
+<li>从上面得知：</li>
+</ul>
+<ol>
+<li>当<code>topology</code>提交到集群之后，<code>task任务</code>数目就<strong>不能改变</strong>了（线程数可以变）；（切记）</li>
+<li>因此弹性计算就需要提前给一个组件的线程创建多个task;</li>
+</ol>
+<ul>
+<li>动态调整：</li>
+</ul>
+<ol>
+<li>topology提交到Storm集群中运行后，通过storm rebalance 命令可对topology进行动态调整。比如增加Topology的worker数，修改Bolt，Spout的并行执行数量 parallelism等，从而实现topology的动态调整，达到弹性计算的目的。</li>
+<li>命令： [storm rebalance topology-name -w wait-time-secs -n new-num-workers -e component=parallelism*</li>
+<li><ul>
+<li><code>storm rebalance topology-name -n new-work-num</code>   ////调整指定topology的worknum；可以增加</li>
+<li><code>storm rebalance topology-name -e component=parallelism</code> ////调整指定topology中指定  component的并行数量。 <strong>只能减小</strong>不能增大</li>
+</ul>
+</li>
+</ol>
+<h2 id="并行度设置多少"><a href="#并行度设置多少" class="headerlink" title="并行度设置多少"></a>并行度设置多少</h2><p>并行度设置多少合适？通过查阅资料大概总结如下：</p>
+<ol>
+<li>单spout每秒大概可以发送500个tuple</li>
+<li>单bolt每秒大概可以接收2000个tuple</li>
+<li>单acker每秒大概可以接收6000个tuple</li>
+<li>根据上面的指标可以根据当前业务的数据量对并行度进行动态调整。</li>
+</ol>
+<p>实战：在UI中详细的看信息。</p>
+<hr>
+<h2 id="Storm窗口"><a href="#Storm窗口" class="headerlink" title="Storm窗口"></a>Storm窗口</h2><p>Tumbling Window：按照固定的时间间隔或者Tuple数量划分窗口。</p>
+<p>Sliding Window：窗口数据是有重叠的。</p>
+<p>API:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Sliding window 窗口长度：tuple数, 滑动间隔: tuple数</span></span><br><span class="line">withWindow(Count windowLength, Count slidingInterval)</span><br><span class="line"><span class="comment">//Sliding window 窗口长度：tuple数, 滑动间隔: 每个tuple滑一滑</span></span><br><span class="line">withWindow(Count windowLength)</span><br><span class="line"><span class="comment">//Sliding window 窗口长度：tuple数, 滑动间隔: 时间</span></span><br><span class="line">withWindow(Count windowLength, Duration slidingInterval)</span><br><span class="line"><span class="comment">//Sliding window 窗口长度：tuple数, 滑动间隔: 时间</span></span><br><span class="line">withWindow(Duration windowLength, Duration slidingInterval)</span><br><span class="line"><span class="comment">//Sliding window 窗口长度：时间, 滑动间隔: 每个tuple滑一滑</span></span><br><span class="line">withWindow(Duration windowLength)</span><br><span class="line"><span class="comment">//Sliding window 窗口长度：时间, 滑动间隔: 时间</span></span><br><span class="line">withWindow(Duration windowLength, Count slidingInterval)</span><br><span class="line"><span class="comment">//Tumblingwindow 窗口长度：Tuple数</span></span><br><span class="line">withTumblingWindow(BaseWindowedBolt.Count count)</span><br><span class="line"><span class="comment">//Tumblingwindow 窗口长度：时间</span></span><br><span class="line">withTumblingWindow(BaseWindowedBolt.Duration duration)</span><br></pre></td></tr></table></figure>
+
+<p>?如何排查？如何调试？</p>
+<h2 id="Trident"><a href="#Trident" class="headerlink" title="Trident"></a>Trident</h2><p><a href="http://storm.apache.org/releases/current/Trident-tutorial.html" target="_blank" rel="noopener">Trident官网介绍</a></p>
+<p>Storm是real-time框架，这是区别Hadoop等批处理框架的重要的特性之一。实时处理不可能写SQL，我们要解决joins\aggregations\grouoping \functions\filters等数据处理。</p>
+<p><strong><em>核心概念</em></strong></p>
+<p> Storm Trident中的核心数据模型就是“Stream”，也就是说，Storm Trident处理的是<strong>Stream</strong>，但是实际上Stream是被成批处理的，Stream被切分成一个个的<strong>Batch</strong>分布到集群中，所有应用在Stream上的函数最终会应用到每个节点的Batch中，实现并行计算。</p>
+<p>在Trident中有五种操作类型：</p>
+<ul>
+<li>Apply Locally: 本地操作，所有操作应用在本地节点数据上，不会产生网络传输     </li>
+<li>Repartitioning: 数据流重定向，单纯的改变数据流向，不会改变数据内容，这部分会有网络传输</li>
+<li>Aggragation :聚合操作，会有网络传输</li>
+<li>Grouped streams上的操作</li>
+<li>Merge和Join</li>
+</ul>
+<h3 id="什么是Trident-State"><a href="#什么是Trident-State" class="headerlink" title="什么是Trident State"></a>什么是Trident State</h3><p>直译过来就是trident状态，这里的状态主要涉及到Trident如何实现一致性语义规则，Trident的计算结果将被如何提交，如何保存，如何更新等等。我们知道Trident的计算都是以batch为单位的，但是batch在中的tuple在处理过程中有可能会失败，失败之后bach又有可能会被重播，这就涉及到很多事务一致性问题。Trident State就是管理这些问题的一套方案，与这套方案对应的就是Trident State API。</p>
+<h4 id="举例具体例子来说明"><a href="#举例具体例子来说明" class="headerlink" title="举例具体例子来说明"></a>举例具体例子来说明</h4><p>假设有这么一个需求，统计一个数据流中各个单词出现的数量，并把单词和其数量更新到数据库中。假设我们在数据库中只有两个字段，单词和其数量，在计数过程中，如果遇到相同的单词则就把其数量加一。但是这么做有一个问题，如果某个单词是被重播的单词，就有可能导致这个单词被多加了一遍。因此，在数据库中只保存单词和其数量两个字段是无法做到“数据只被处理一次”的语义要求的（Exactly Once）。</p>
+<p><strong><em>Trident定义了如下语义规则</em></strong>：</p>
+<ul>
+<li><p>所有的Tuple都是以batch的形式处理的</p>
+</li>
+<li><p>每个batch都会被分配一个唯一的“transaction id”(txid)，如果batch被重发，txid不变</p>
+</li>
+<li><p>各个batch状态的更新是有序的，也就是说batch2一定会在batch3之前更新</p>
+</li>
+</ul>
+<p>有了这三个规则，我们就可以通过txid知道batch是否被处理过，然后就可以根据实际情况来更新状态信息了。很明显，要满足这几个语义规则，就需要spout来支持，因为把tuple封装成batch，分配txid等等都是由spout来负责的。</p>
+<p>但是在具体应用场景中，storm应该能够提供不同的容错级别，因为某些情况下我们并不需要强一致性。为了更灵活的处理，Trident提供了三类spout，分别是：</p>
+<ul>
+<li><p>Transactional spouts : 事务spout，提供了强一致性</p>
+</li>
+<li><p>Opaque Transactional spouts：不透明事务spout，提供了弱一致性</p>
+</li>
+<li><p>No-Transactional spouts：非事务spout，对一致性无法保证</p>
+</li>
+</ul>
+<p><strong><em>Trident State的类型</em></strong><br>我们已经知道Trident 提供了三种类型的spout来服务Trident State管理，那么对应的Trident State也有三种类型：</p>
+<ul>
+<li><p>Transactional</p>
+</li>
+<li><p>Opaque Transactional </p>
+</li>
+<li><p>No-Transactional</p>
+</li>
+</ul>
+<p><strong><em>各类Trident Spout详解</em></strong><br><em>Transactional spouts:</em></p>
+<ul>
+<li><p>相同txid的batch完全一样，如果一个batch被重播，重播的batch的txid及其所有tuple和原batch的完全一致</p>
+</li>
+<li><p>两个batch中的tuple不会有重合</p>
+</li>
+<li><p>每个tuple都在batch中，不会有batch漏掉某个tuple</p>
+</li>
+</ul>
+<p>这三个特性是“最完美”的保证，也最容易理解，Stream被分割成固定的batch，而且不会改变。Storm就提供了一个Transactional spout的实现：TransactionalTridentKafkaSpout。</p>
+<p>总结一下整个处理过程:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(database txid=current txid)&#123;<span class="comment">//两次更新的txid相同</span></span><br><span class="line">     跳过;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">     用current value替换掉database value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><em>Opaque Transactional spouts:</em><br>上面已经提到过，并不是所有情形下都需要保证强一致性。例如在TransactionalTridentKafkaSpout中（关于Kafka相关介绍，点这里），如果它的一个batch中的tuples来自一个topic的所有partitions，如果要满足Transactionnal Spout语义的话，一旦这个batch因为某些失败而被重发，重发batch中的所有tuple必须与这个batch中的完全一致，而恰好kafka集群某个节点down掉导致这个topic其中一个partition无法使用，那么就会导致这个batch无法凑齐所有tuple（无法获取失败partition上的数据），整个处理过程被挂起。而Opaque Transactional spouts就可以解决这个问题。</p>
+<p>Opaque Transactional spouts提供了如下保证：</p>
+<ul>
+<li><p>每个tuple只在一个batch中被成功处理，如果一个batch中的tuple处理失败的话，后面的batch会继续添加上这个tuple，以便处理。</p>
+</li>
+<li><p>怎么理解这个特性呢，简要来说就OpaqueTransactional spout和Transactional spouts基本差不多，只是在Opaque Transactional spout中，相同txid的batch中的tuple集合可能不一样。OpaqueTridentKafkaSpout就是符合这种特性的spout的，所以它可以容忍kafka节点失败。</p>
+</li>
+<li><p>因为重播的batch中的tuple集合可能不一样，所以对于Opaque Transactional Spout，就不能根据txid是否一致来决定是否需要更新状态了。我们需要在数据库中保存更多的状态信息，除了单词名，数量、txid之外，我们还需要保存一个pre-value来记录前一次计算的值。我们再用上面例子具体说明一下。</p>
+</li>
+</ul>
+<p>总结一下整个处理过程:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(database txid=current txid)&#123;</span><br><span class="line"> value=preValue+current value；<span class="comment">//重新更新value</span></span><br><span class="line"> <span class="comment">//preValue不变；</span></span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line"> preValue=value;<span class="comment">//更新preValue</span></span><br><span class="line"> value=preValue+current value;<span class="comment">//更新value</span></span><br><span class="line"> txid=current txid;<span class="comment">//更新txid</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>No-Transactional spouts:<br>No-Transactional spouts对每个batch的内容不做任何保证。如果失败的batch没被重发，它有会出现“最多被处理一次”的请况，如果tuples被多个batch处理，则会发生“最少被处理一次的情况”，很难保证“数据只被处理一次”的情况。</p>
+<p><strong><em>Spout和State的类型总结</em></strong></p>
+<p>​    总的来说， Opaque transactional states即有一定的容错性又能保证数据一致性，但它的代价是需要在数据库中保存更多的状态信息（txid和preValue）。Transactional states虽然需要较少的状态信息(txid)，但是它需要transactional spouts的支持。non-transactional states需要在数据库中保存最少的状态信息但难以保证“数据只被处理一次”的语义。</p>
+<p><strong><em>State API</em></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TridentTopology topology = <span class="keyword">new</span> TridentTopology();       </span><br><span class="line">TridentState wordCounts = topology.newStream(<span class="string">"spout1"</span>, spout)</span><br><span class="line">   .each(<span class="keyword">new</span> Fields(<span class="string">"sentence"</span>), <span class="keyword">new</span> Split(), <span class="keyword">new</span> Fields(<span class="string">"word"</span>))</span><br><span class="line">   .groupBy(<span class="keyword">new</span> Fields(<span class="string">"word"</span>))</span><br><span class="line">   .persistentAggregate(MemcachedState.opaque(serverLocations), <span class="keyword">new</span> Count(), <span class="keyword">new</span> Fields(<span class="string">"count"</span>))               </span><br><span class="line">   .parallelismHint(<span class="number">6</span>);</span><br></pre></td></tr></table></figure>
+
+<p>代码分析，带同学们看TridentWordCount.java 着重分析下代码。</p>
+<p> 分析完后 看医疗实战代码</p>
+
       
     </div>
     <footer class="article-footer">
