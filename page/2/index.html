@@ -58,28 +58,28 @@
   <meta name="description" content="2017届考研专业第一名，总分418。考研复习攻略，资料分享。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="占志鹏の考研攻略站">
-<meta property="og:url" content="http://chris8860.gitee.io/myblog/archives/2019/10/index.html">
+<meta property="og:url" content="http://chris8860.gitee.io/myblog/page/2/index.html">
 <meta property="og:site_name" content="占志鹏の考研攻略站">
 <meta property="og:description" content="2017届考研专业第一名，总分418。考研复习攻略，资料分享。">
 <meta property="og:locale" content="zh-CN">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="占志鹏の考研攻略站">
 <meta name="twitter:description" content="2017届考研专业第一名，总分418。考研复习攻略，资料分享。">
-  <link rel="canonical" href="http://chris8860.gitee.io/myblog/archives/2019/10/">
+  <link rel="canonical" href="http://chris8860.gitee.io/myblog/page/2/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
+    isHome: true,
     isPost: false,
     isPage: false,
-    isArchive: true
+    isArchive: false
   };
 </script>
 
-  <title>归档 | 占志鹏の考研攻略站</title>
+  <title>占志鹏の考研攻略站</title>
   
 
 
@@ -281,376 +281,131 @@
         <div class="content-wrap">
             
 
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-  
-
           <div class="content">
             
 
+  <div class="posts-expand">
+        
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        
-        
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://chris8860.gitee.io/myblog/myBlog/2019/10/14/初识hexo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="占志鹏">
+      <meta itemprop="description" content="2017届考研专业第一名，总分418。考研复习攻略，资料分享。">
+      <meta itemprop="image" content="/myBlog/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="占志鹏の考研攻略站">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
           
-        
-        <span class="collection-header">嗯..! 目前共计 11 篇日志。 继续努力。</span>
-      </div>
-      
+            
+            <a href="/myBlog/2019/10/14/初识hexo/" class="post-title-link" itemprop="url">Storm习题</a>
+          
+        </h1>
 
-      
+        <div class="post-meta">
+		  
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
 
-  
-  
+              
+                
+              
 
-  
+              <time title="创建时间：2019-10-14 10:00:00 / 修改时间：16:39:17" itemprop="dateCreated datePublished" datetime="2019-10-14T10:00:00+08:00">2019-10-14</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/myBlog/categories/BigData/" itemprop="url" rel="index">
+                    <span itemprop="name">BigData</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span id="/myBlog/2019/10/14/初识hexo/" class="post-meta-item leancloud_visitors" data-flag-title="Storm习题" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+        </div>
+      </header>
+
     
-    <div class="collection-year">
-      <h1 class="collection-header">2019</h1>
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>storm的并行度</strong>，其实就是让storm中的组件使用多线程来运行，正常情况下，每一个组件都是一个线程来运行的。storm中的组件在运行的时候都会生成一些task(实例，还可以理解为new Spout或者new Bolt)。这个task先要运行的话，需要在线程(executor)中运行，线程需要存在于进程(worker)内部。</p>
+<h2 id="storm并行简介"><a href="#storm并行简介" class="headerlink" title="storm并行简介"></a>storm并行简介</h2><h3 id="关系简介"><a href="#关系简介" class="headerlink" title="关系简介"></a>关系简介</h3><ol>
+<li><strong>Worker进程</strong>存在于每个<strong>工作节点Supervisor</strong>中，一个Worker进程中可以含有一个或者多个Executor线程，每个Executor线程都会启动一个消息循环线程，用于接收、处理和发送消息，当Executor收到其下某一task的消息后，就会调用该Task对应的处理逻辑对消息进行处理；</li>
+<li>1个topology可以有多个worker进程，1个worker进程只为1个topology服务。即<strong>1个worker进程执行的是1个topology的子集</strong>；</li>
+<li><strong>一个线程Executor，运行时只会运行一个task</strong>，如果有多个，循环执行，即其他的task出去等待状态；</li>
+<li>task，最终运行spout或bolt中代码的执行单元，即<strong>task可能是spout组件也有可能是bolt组件</strong>；</li>
+<li><strong>默认情况下</strong>: <code>1个supervisor</code>节点最多可以启动<code>4个worker进程</code>，每<code>1个topology</code>默认占用<code>1个worker进程</code>，<code>每个spout或者bolt</code>会占用<code>1个executor</code>，<code>每个executor</code>启动<code>1个task</code>。</li>
+</ol>
+<p><a href="https://ws2.sinaimg.cn/large/006tNbRwly1fwyez8ot3jj314e0k0tup.jpg" target="_blank" rel="noopener">官网Storm结构图</a> </p>
+          <!--noindex-->
+          
+            <div class="post-button">
+              <a class="btn" href="/myBlog/2019/10/14/初识hexo/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
     </div>
-  
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T19:39:34+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
         
-          <a class="post-title-link" href="/myBlog/2019/10/14/考研攻略站导航/" itemprop="url">
-            <span itemprop="name">考研攻略站导航</span>
-          </a>
-        
-      </h2>
-
-    </header>
+      </footer>
   </article>
-
-
-
+  
   
   
 
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:51:17+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/考研复习杂事记/" itemprop="url">
-            <span itemprop="name">考研复习杂事记</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:51:02+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/我的秋招之路/" itemprop="url">
-            <span itemprop="name">我的秋招之路</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:50:48+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/我的研究生生活/" itemprop="url">
-            <span itemprop="name">我的研究生生活</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:50:19+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/考研应该怎么搜索信息/" itemprop="url">
-            <span itemprop="name">考研应该怎么搜索信息“</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:49:58+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/2021届最新考研资料获取/" itemprop="url">
-            <span itemprop="name">2021届最新考研资料获取</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:49:46+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/2020届考研资料获取/" itemprop="url">
-            <span itemprop="name">2020届考研资料获取</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:49:15+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/考研政治复习攻略/" itemprop="url">
-            <span itemprop="name">考研政治复习攻略</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:49:05+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/考研英语复习攻略/" itemprop="url">
-            <span itemprop="name">考研英语复习攻略</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T17:48:37+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/考研数学复习攻略/" itemprop="url">
-            <span itemprop="name">考研数学复习攻略</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-  
-  
-
-  
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-10-14T10:00:00+08:00"
-              content="2019-10-14">
-          10-14
-        </time>
-      </div>
-
-      <h2 class="post-title">
-        
-          <a class="post-title-link" href="/myBlog/2019/10/14/初识hexo/" itemprop="url">
-            <span itemprop="name">Storm习题</span>
-          </a>
-        
-      </h2>
-
-    </header>
-  </article>
-
-
-
-
-    </div>
+    
   </div>
-  
-  
-  
 
   
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/myBlog/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/myBlog/">1</a><span class="page-number current">2</span>
+  </nav>
 
 
 

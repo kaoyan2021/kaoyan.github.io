@@ -55,19 +55,17 @@
   };
 </script>
 
-  <meta name="description" content="我的简介 电子科技大学在读研究生 2017届考研专业初试418分，专业第一名 分享考研资料，考研经验  有关更多详细信息，可点击右上方查看文章分类等。">
+  <meta name="description" content="我的简介 电子科技大学自动化学院在读研究生 2017届考研专业初试418分，专业第一名 分享考研资料，考研经验  联系方式 QQ：975686378 知乎：@占志鹏">
 <meta property="og:type" content="website">
 <meta property="og:title" content="about">
 <meta property="og:url" content="http://chris8860.gitee.io/myblog/about/index.html">
 <meta property="og:site_name" content="占志鹏の考研攻略站">
-<meta property="og:description" content="我的简介 电子科技大学在读研究生 2017届考研专业初试418分，专业第一名 分享考研资料，考研经验  有关更多详细信息，可点击右上方查看文章分类等。">
+<meta property="og:description" content="我的简介 电子科技大学自动化学院在读研究生 2017届考研专业初试418分，专业第一名 分享考研资料，考研经验  联系方式 QQ：975686378 知乎：@占志鹏">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://chris8860.gitee.io/myPictures/Pictures/IMG_20191014_174128.jpg">
-<meta property="og:updated_time" content="2019-10-14T09:45:35.443Z">
+<meta property="og:updated_time" content="2019-10-14T11:35:21.778Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="about">
-<meta name="twitter:description" content="我的简介 电子科技大学在读研究生 2017届考研专业初试418分，专业第一名 分享考研资料，考研经验  有关更多详细信息，可点击右上方查看文章分类等。">
-<meta name="twitter:image" content="https://chris8860.gitee.io/myPictures/Pictures/IMG_20191014_174128.jpg">
+<meta name="twitter:description" content="我的简介 电子科技大学自动化学院在读研究生 2017届考研专业初试418分，专业第一名 分享考研资料，考研经验  联系方式 QQ：975686378 知乎：@占志鹏">
   <link rel="canonical" href="http://chris8860.gitee.io/myblog/about/">
 
 
@@ -264,7 +262,7 @@
       
     
 
-    <a href="/myBlog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">1</span></a>
+    <a href="/myBlog/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">11</span></a>
 
   </li>
       
@@ -332,11 +330,14 @@
       
       <div class="post-body">
           <h3 id="我的简介"><a href="#我的简介" class="headerlink" title="我的简介"></a>我的简介</h3><ul>
-<li>电子科技大学在读研究生</li>
+<li>电子科技大学自动化学院在读研究生</li>
 <li>2017届考研专业初试418分，专业第一名</li>
 <li>分享考研资料，考研经验</li>
 </ul>
-<p>有关更多详细信息，可点击右上方<img src="https://chris8860.gitee.io/myPictures/Pictures/IMG_20191014_174128.jpg" width="25" height="25" div align="right/">查看文章分类等。</p>
+<h3 id="联系方式"><a href="#联系方式" class="headerlink" title="联系方式"></a>联系方式</h3><ul>
+<li>QQ：975686378</li>
+<li>知乎：@占志鹏</li>
+</ul>
 
         
       </div>
@@ -383,7 +384,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#我的简介"><span class="nav-number">1.</span> <span class="nav-text">我的简介</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#我的简介"><span class="nav-number">1.</span> <span class="nav-text">我的简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#联系方式"><span class="nav-number">2.</span> <span class="nav-text">联系方式</span></a></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -402,7 +403,7 @@
         
           <a href="/myBlog/archives/">
         
-          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -502,6 +503,98 @@
 
 
 
+  
+  <script>
+  function leancloudSelector(url) {
+    return document.getElementById(url).querySelector('.leancloud-visitors-count');
+  }
+  if (CONFIG.page.isPost) {
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = visitors.getAttribute('id').trim();
+      var title = visitors.getAttribute('data-flag-title').trim();
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+              leancloudSelector(url).innerText = counter.time + 1;
+            
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .then(response => response.json())
+              .catch(error => {
+                console.log('Failed to save visitor count', error);
+              })
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.log('LeanCloud Counter Error', error);
+        });
+    }
+  } else {
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return element.getAttribute('id').trim();
+      });
+
+      Counter('get', `/classes/Counter?where=${JSON.stringify({ url: { '$in': entries } })}`)
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length === 0) {
+            document.querySelectorAll('.leancloud_visitors .leancloud-visitors-count').forEach(element => {
+              element.innerText = 0;
+            });
+            return;
+          }
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.url;
+            var time = item.time;
+            leancloudSelector(url).innerText = time;
+          }
+          for (var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = leancloudSelector(url);
+            if (element.innerText == '') {
+              element.innerText = 0;
+            }
+          }
+        })
+        .catch(error => {
+          console.log('LeanCloud Counter Error', error);
+        });
+    }
+  }
+
+  fetch('https://app-router.leancloud.cn/2/route?appId=0i75Y5uhnVuB7D8j4RY74uxE-gzGzoHsz')
+    .then(response => response.json())
+    .then(({ api_server }) => {
+      var Counter = (method, url, data) => {
+        return fetch(`https://${api_server}/1.1${url}`, {
+          method: method,
+          headers: {
+            'X-LC-Id': '0i75Y5uhnVuB7D8j4RY74uxE-gzGzoHsz',
+            'X-LC-Key': '334RwkTfOIaIOUq576VAOjNU',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        const localhost = /http:\/\/(localhost|127.0.0.1|0.0.0.0)/;
+        if (localhost.test(document.URL)) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
 
 
 
